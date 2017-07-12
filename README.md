@@ -1,6 +1,31 @@
 # BBMRI_ERIC_data_mover
+
+This script downloads data from one server of BBMRI eric. It contains the new model. This means:<br/>
+ - <b>One_to_many</b> instead of xref for biobanks, networks, subcollections and persons. This datatype allows for circular dependencies.
+ This makes it for instance possible to show collections in the network table and networks in the collection table; before in only one
+ of both tables the information could be shown. This change needed the network column in biobanks and collections to become an xref instead of
+ mref, which means items with more than one network are also invalid and will be filtered out<br/>
+ - <b>Disease types</b> are filtered and ready for semantic search. The disease types contained a lot of invalid disease types and wildcards.
+ These are now declared invalid. Semantic search will be implemented in a next release of Molgenis, this allows for searching on more generic
+ ICD10 terms and also finding more specific terms that are related to your search query. This functionality could not work with the wildcards.<br/>
+ Invalid rows are written to logfiles. <br/>
+
+<h3>Run</h3>
 Add a config.txt file in the format of config_example.txt, in the same directory<br/>
 Run the script:<br/>
-```python3 Bbmri_data_mover.py```<br/>
-Model for countries will be created in /datamodel/countries<br/>
-Data will be retrieved from one server, converted to new model and put in the new server.<br/>
+```python3 Bbmri_data_mover.py```
+
+<h3>Model</h3>
+Model for countries will be created in /datamodel/countries.
+Model for general directory is already in /datamodel and will be zipped as: meta_data.zip
+
+<h3>Data</h3>
+Data will be retrieved from one server, converted to new model and put in the new server. Invalid rows are filtered out. 
+
+<h3>Logs of invalid data</h3>
+Logs will be created in /Bbrmi_eric_quality_checker.Two logs will be written:
+
+| Logfile           | Description                                                                                 |
+|-------------------|---------------------------------------------------------------------------------------------|
+| logs.txt          | Contains all rows with invalid data                                                         |
+| breaking_rows.txt | Contains data invalid rows that are not uploaded in the new model on the target server      |
