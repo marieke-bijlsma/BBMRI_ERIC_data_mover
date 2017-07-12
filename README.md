@@ -27,7 +27,7 @@ Model for general directory is already in /datamodel and will be zipped as: meta
 Data will be retrieved from one server, converted to new model and put in the new server. Invalid rows are filtered out.
 
 <h3>Logs of invalid data</h3>
-Logs will be created in /Bbrmi_eric_quality_checker.Two logs will be written:
+Logs will be created in /Bbrmi_eric_quality_checker. Two logs will be written:
 
 | Logfile           | Description                                                                                 |
 |-------------------|---------------------------------------------------------------------------------------------|
