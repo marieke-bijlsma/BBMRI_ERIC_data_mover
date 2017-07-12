@@ -16,12 +16,22 @@ Invalid rows will be filtered out and written to logfiles. The valid data will b
 
 <h3>Run</h3>
 Add a config.txt file in the format of config_example.txt, in the same directory. <br/>
+Config.txt:
+
+```
+url=http(s)://source-server/api/
+account=username
+password=password
+countries=AT,BE,CZ,DE,EE,FI,FR,GR,IT,MT,NL,NO,PL,SE,UK,LV
+target_server=http(s)://target-server/api/
+target_account=username
+target_password=password
+```
 Run the script:<br/>
 
 ```
 python3 Bbmri_data_mover.py
 ```
-
 
 <h3>Model</h3>
 Model for countries will be created in /datamodel/countries.
