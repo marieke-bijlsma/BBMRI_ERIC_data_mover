@@ -17,7 +17,9 @@ Invalid rows will be filtered out and written to logfiles. The valid data will b
 <h3>Run</h3>
 Add a config.txt file in the format of config_example.txt, in the same directory<br/>
 Run the script:
-```python3 Bbmri_data_mover.py```
+```
+python3 Bbmri_data_mover.py
+```
 
 <h3>Model</h3>
 Model for countries will be created in /datamodel/countries.
