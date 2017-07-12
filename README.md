@@ -15,11 +15,12 @@ Invalid rows will be filtered out and written to logfiles. The valid data will b
  ICD10 terms and also finding more specific terms that are related to your search query. This functionality could not work with the wildcards.
 
 <h3>Run</h3>
-Add a config.txt file in the format of config_example.txt, in the same directory<br/>
+Add a config.txt file in the format of config_example.txt, in the same directory. 
 Run the script:
 ```
 python3 Bbmri_data_mover.py
 ```
+
 
 <h3>Model</h3>
 Model for countries will be created in /datamodel/countries.
