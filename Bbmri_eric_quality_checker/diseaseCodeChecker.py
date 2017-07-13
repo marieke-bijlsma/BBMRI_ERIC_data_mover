@@ -1,6 +1,7 @@
 import re, sys, os
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(ROOT_DIR+"/data_model")
+
 
 class DiseaseCodeChecker():
     def __init__(self):
@@ -14,10 +15,11 @@ class DiseaseCodeChecker():
         self.valid_disease_types = []
 
     def parse_disease_types(self):
-        for i, line in enumerate(open("eu_bbmri_disease_types.csv")):
+        for i, line in enumerate(
+                open(ROOT_DIR.replace("Bbmri_eric_quality_checker", "data_model") + "/eu_bbmri_eric_disease_types.csv")):
             if i != 0:
                 line = line.split(",")
-                self.valid_disease_types.append(line[0])
+                self.valid_disease_types.append(line[0][1:len(line[0])-1])
 
     def is_code_in_list(self, code, list):
         if code in list:
@@ -34,6 +36,7 @@ class DiseaseCodeChecker():
 
     def check_code(self, code):
         log = []
+        self.parse_disease_types()
         if not self.is_code_in_list(code, self.valid_disease_types):
             log.append('Diagnosis code not valid: ' + code)
             log.append('CRITICAL')

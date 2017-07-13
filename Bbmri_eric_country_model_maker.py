@@ -27,6 +27,7 @@ class BbmriEricCountryModelMaker():
         country_specific_packages = self.make_country_packages(country_code)
         self.write_to_file(country_code, country_specific_attributes, country_specific_entities, country_specific_packages)
 
+
     def make_country_attributes(self, country_code):
         entities = self.rename_entities(self.attributes['entity'], country_code)
         ref_entities = self.rename_entities(self.attributes['refEntity'], country_code)
@@ -34,12 +35,16 @@ class BbmriEricCountryModelMaker():
 
     def make_country_entities(self, country_code):
         package_column = []
+        label_column = []
         for i, entity in enumerate(self.entities['name']):
             if entity == "biobanks" or entity == "collections" or entity == "networks" or entity == "persons":
                 package_column.append("eu_bbmri_eric_" + country_code)
+                label_column.append(country_code+": "+entity)
             else:
                 package_column.append(self.entities['package'][i])
-        return {"package": package_column}
+                label_column.append(self.entities['label'][i])
+
+        return {"package": package_column, "label":label_column}
 
     def make_country_packages(self, country_code):
         return {"name": ["eu_bbmri_eric_" + country_code, "eu_bbmri_eric"], "description":["bbmri_eric", "bbmri_eric"],
@@ -56,6 +61,18 @@ class BbmriEricCountryModelMaker():
             else:
                 entityNames.append(entity)
         return entityNames
+
+    def rename_labels(self, labels, country_code):
+        countryLabels = []
+        for label in labels:
+            if label.endswith('biobanks') or label.endswith('collections') or label.endswith(
+                    'persons') or label.endswith('networks'):
+                splitted = label.split("_")
+                countryEntity = "_".join(splitted[0:3]) + "_" + country_code + "_" + "_".join(splitted[3:len(splitted)])
+                countryLabels.append(countryEntity)
+            else:
+                countryLabels.append(label)
+        return countryLabels
 
     def get_model_sheet(self, filename):
         model_sheet = {}

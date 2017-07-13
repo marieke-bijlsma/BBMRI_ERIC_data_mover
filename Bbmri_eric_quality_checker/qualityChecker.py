@@ -18,7 +18,7 @@ class QualityChecker():
 
     def __init__(self, connnection):
         self.connection = connnection
-        self.breaking_errors = {"collection":[], "biobank":[]}
+        self.breaking_errors = {"collection":[], "biobank":[], "network":[]}
         self.collection_data = self.get_collection_data()
         self.biobank_data = self.get_biobank_data()
         self.network_data = self.get_network_data()
@@ -141,7 +141,7 @@ class QualityChecker():
         IN: contact - the contact list
             type - can be collection, biobank, network
         OUT: writes to log if length of contact is more than 1"""
-        if not len(contact) == 1:
+        if len(contact) > 1:
             self.logs.write(id, type + '_contact', 'More than one contact: ' + str(len(contact)), 'CRITICAL',
                             type.upper() + ' HAS MORE THAN 1 CONTACT')
 
@@ -255,13 +255,13 @@ class QualityChecker():
             self.is_valid_person_id(id, country)
             self.check_person_phonenumber(row)
 
-    def check_has_one_network(self, network, id, type):
-        length = len(network)
+    def check_has_one_contact(self, contact, id, type):
+        length = len(contact)
         if length > 1:
-            self.logs.write(id, "network", "Only one network can be specified, while {} are specified".format(length),
+            self.logs.write(id, "contact", "Only one contact can be specified, while {} are specified".format(length),
                             "CRITICAL", type.upper()+" LONGER THAN 1")
             self.breaking_errors[type].append(id)
-            self.breaking_logs.write(id, "network", "Only one network can be specified, while {} are specified".format(length),
+            self.breaking_logs.write(id, "network", "Only one contact can be specified, while {} are specified".format(length),
                             "CRITICAL", type.upper()+" LONGER THAN 1")
 
     def check_network_data(self):
@@ -283,7 +283,7 @@ class QualityChecker():
         for row in self.biobank_data:
             id = row['id']
             country = row["country"]['name']
-            network = row["network"]
+            contact = row["contact"]
             self.is_valid_biobank_id(id, country)
             self.check_geolocation(row, 'biobank')
             self.check_name(id, row['name'], 'biobank')
@@ -291,7 +291,7 @@ class QualityChecker():
             self.check_biobank_head(row)
             self.check_contact(id, row['contact'], 'biobank')
             self.check_collaboration(row, 'biobank')
-            self.check_has_one_network(network, id, "biobank")
+            self.check_has_one_contact(contact, id, "biobank")
 
     def check_collection_data(self):
         """NAME: check_collection_data
@@ -300,7 +300,7 @@ class QualityChecker():
             id = row['id']
             biobankId = row['biobank']['id']
             country = row["country"]['name']
-            network = row["network"]
+            contact = row["contact"]
             self.is_valid_collection_id(id, country, biobankId)
             self.check_name(id, row['name'], 'collection')
             self.check_description(row, 'collection')
@@ -308,7 +308,7 @@ class QualityChecker():
             self.is_invalid_diagnosis(row['diagnosis_available'], id)
             self.check_collaboration(row, 'collection')
             self.check_sample_image_data(row)
-            self.check_has_one_network(network, id, "collection")
+            self.check_has_one_contact(contact, id, "collection")
 
 
 def main():

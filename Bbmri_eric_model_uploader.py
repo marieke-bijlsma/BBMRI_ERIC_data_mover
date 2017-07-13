@@ -19,7 +19,6 @@ class BbmriEricModelUploader():
 
     def upload_all_countries(self):
         for country in self.countries:
-            print(country)
             self.upload_country(country)
 
     def upload_country(self, country):

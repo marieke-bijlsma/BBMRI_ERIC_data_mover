@@ -6,10 +6,10 @@ The old data retrieved from the specified server will be converted to the new mo
 Invalid rows will be filtered out and written to logfiles. The valid data will be uploaded in the models<br/>
 
 <h3>New model</h3>
- - <b>One_to_many</b> instead of xref for biobanks, networks, subcollections and persons. This datatype allows for circular dependencies.
+ - <b>One_to_many</b> instead of xref for biobanks, subcollections and persons. This datatype allows for circular dependencies.
  This makes it for instance possible to show collections in the network table and networks in the collection table; before in only one
- of both tables the information could be shown. This change needed the network column in biobanks and collections to become an xref instead of
- mref, which means items with more than one network are also invalid and will be filtered out<br/>
+ of both tables the information could be shown. This change needed the contact column in networks, biobanks and collections to become an xref instead of
+ mref, which means items with more than one contact are also invalid and will be filtered out<br/>
  - <b>Disease types</b> are filtered and ready for semantic search. The disease types contained a lot of invalid disease types and wildcards.
  These are now declared invalid. Semantic search will be implemented in a next release of Molgenis, this allows for searching on more generic
  ICD10 terms and also finding more specific terms that are related to your search query. This functionality could not work with the wildcards.
