@@ -12,8 +12,11 @@ class CollectionIdChecks(IdChecks):
 
     def collection_correctly_placed(self):
         splitted_id = re.split(r"[_:]+", self.id)
-        if splitted_id.index("collection") > 3:
-            return True
+        if "collection" in splitted_id:
+            if splitted_id.index("collection") > 3:
+                return True
+            else:
+                return False
         else:
             return False
 
