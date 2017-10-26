@@ -1,12 +1,12 @@
-import pprint
+import pprint, sys
 
 from Bbmri_eric_quality_checker.qualityChecker import QualityChecker
 from Bbmri_eric_quality_checker.configParser import ConfigParser
 from molgenis.molgenisConnector import MolgenisConnector
 
-
 class BbmriEricDataUploader():
     def __init__(self, config):
+        self.diseaseCorrections = ""
         self.filter_rows = ""
         self.collections = ""
         self.biobanks = ""
@@ -67,11 +67,13 @@ class BbmriEricDataUploader():
                     self.upload_data("eu_bbmri_eric_{}_collections".format(country), collections, self.server,
                                  self.username, self.password)
                 except:
+                    print(collections)
                     print("Uploading {} failed, is it already uploaded?".format(
                         "eu_bbmri_eric_{}_collections".format(country)))
 
     def retrieve_data(self, molgenis_connector):
         qc = QualityChecker(molgenis_connector)
+        self.diseaseCorrections = qc.diseaseCorrections
         qc.check_collection_data()
         qc.check_biobank_data()
         qc.check_network_data()
@@ -118,54 +120,36 @@ class BbmriEricDataUploader():
         for i, item in enumerate(data):
             new_item = item
             del new_item['_href']
-            if new_item['id'] not in self.filter_rows['collection'] and new_item['id'] not in self.filter_rows[
-                'biobank'] and new_item['id'] not in self.filter_rows['network']:
-                delete_contact = False
-                delete_item = False
-                delete_parent_collection = False
-                for key in new_item:
-                    if type(new_item[key]) is dict:
-                        ref = new_item[key]['id']
-                        if key == 'biobank':
-                            if ref in self.filter_rows[key]:
-                                delete_item = True
-                            else:
-                                 new_item[key] = ref
-                        elif key == "parent_collection":
-                            if ref in self.filter_rows['collection']:
-                                delete_parent_collection = True
-                            else:
-                                new_item[key] = ref
+            for key in new_item:
+                if key == 'diagnosis_available':
+                    correctCodes = []
+                    codes = new_item[key]
+                    for codeObj in codes:
+                        code = codeObj['id']
+                        if code in self.diseaseCorrections:
+                            if self.diseaseCorrections[code] != 'Delete':
+                                # Only get unique values
+                                correctCodes = list(set(correctCodes + self.diseaseCorrections[code]))
                         else:
-                            new_item[key] = ref
-                    elif key == 'contact':
-                        if len(new_item[key]) > 0:
-                            mref = [l['id'] for l in new_item[key]]
-                            new_item[key] = mref[0]
-                        else:
-                            delete_contact = True
-                    elif type(new_item[key]) is list:
-                        if len(new_item[key]) > 0:
-                            # get id for each new_item in list
-                            mref = [l['id'] for l in new_item[key]]
-                            if key == 'network':
-                                delete_network = False
-                                for network in mref:
-                                   if network in self.filter_rows['network']:
-                                        delete_network = True
-                                        break
-                                if not delete_network:
-                                    new_item[key] = mref
-
-                            else:
-                                new_item[key] = mref
-
-                if not delete_item:
-                    if delete_contact:
-                        del new_item['contact']
-                    if delete_parent_collection:
-                        del new_item['parent_collection']
-                    new_data.append(new_item)
+                            correctCodes.append(code)
+                    new_item[key] = correctCodes
+                elif type(new_item[key]) is dict:
+                    ref = new_item[key]['id']
+                    if key == 'biobank':
+                        new_item[key] = ref
+                    elif key == "parent_collection":
+                        new_item[key] = ref
+                    else:
+                        new_item[key] = ref
+                elif key == 'contact':
+                    mref = [l['id'] for l in new_item[key]]
+                    new_item[key] = mref[0]
+                elif type(new_item[key]) is list:
+                    if len(new_item[key]) > 0:
+                        # get id for each new_item in list
+                        mref = [l['id'] for l in new_item[key]]
+                        new_item[key] = mref
+            new_data.append(new_item)
         return new_data
 
 def main():

@@ -1,4 +1,6 @@
-import re, pprint, os
+import re, pprint, os, sys
+sys.path.append('../icd10_fixes')
+
 
 from molgenis.molgenisConnector import MolgenisConnector
 from Bbmri_eric_quality_checker.logwriter import LogWriter
@@ -19,6 +21,7 @@ class QualityChecker():
     def __init__(self, connnection):
         self.connection = connnection
         self.breaking_errors = {"collection":[], "biobank":[], "network":[]}
+        self.diseaseCorrections = {}
         self.collection_data = self.get_collection_data()
         self.biobank_data = self.get_biobank_data()
         self.network_data = self.get_network_data()
@@ -153,11 +156,17 @@ class QualityChecker():
         OUT: writes to log when wildcard is in diagnosis"""
         codeChecker = DiseaseCodeChecker()
         for diagnosis in list:
-            log = codeChecker.check_code(diagnosis['id'])
+            codeCheck = codeChecker.check_code(diagnosis['id'])
+            log = codeCheck[0]
+            validCode = codeCheck[1]
+            if validCode:
+                self.diseaseCorrections[diagnosis['id']] = validCode
+            elif validCode is not None:
+                self.diseaseCorrections[diagnosis['id']] = 'Delete'
+                self.breaking_errors["collection"].append(id)
             if log is not None:
                 self.logs.write(id, 'collection_diagnosis', log[0], log[1], log[2])
                 if log[1] == 'CRITICAL':
-                    self.breaking_errors["collection"].append(id)
                     self.breaking_logs.write(id, 'collection_diagnosis', log[0], log[1], log[2])
 
     def check_biobank_head(self, row):
@@ -260,7 +269,6 @@ class QualityChecker():
         if length > 1:
             self.logs.write(id, "contact", "Only one contact can be specified, while {} are specified".format(length),
                             "CRITICAL", type.upper()+" LONGER THAN 1")
-            self.breaking_errors[type].append(id)
             self.breaking_logs.write(id, "network", "Only one contact can be specified, while {} are specified".format(length),
                             "CRITICAL", type.upper()+" LONGER THAN 1")
 
